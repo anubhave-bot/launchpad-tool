@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GuidedQuestion from '../components/GuidedQuestion';
+import ContextBanner from '../components/ContextBanner';
 import SectionCard from '../components/SectionCard';
 import NavButtons from '../components/NavButtons';
 
@@ -468,6 +469,7 @@ export default function Step3_CoreProblems({ state, setState, onNext, onBack }) 
 
   return (
     <div>
+      <ContextBanner context={ctx} />
       <SectionCard
         title="Core Problems & Definition of Success"
         icon="🎯"
@@ -487,7 +489,7 @@ export default function Step3_CoreProblems({ state, setState, onNext, onBack }) 
             canRemove={problems.length > 1}
             coaching={coaching}
             setCoach={setCoach}
-            projectContext={ctx}
+    
           />
         ))}
 

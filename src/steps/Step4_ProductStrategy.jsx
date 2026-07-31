@@ -1,4 +1,5 @@
 import GuidedQuestion from '../components/GuidedQuestion';
+import ContextBanner from '../components/ContextBanner';
 import SectionCard from '../components/SectionCard';
 import NavButtons from '../components/NavButtons';
 
@@ -160,9 +161,9 @@ export default function Step4_ProductStrategy({ state, setState, onNext, onBack 
 
   return (
     <div>
+      <ContextBanner context={ctx} />
       {/* ---- CHOOSING A STRATEGY ---- */}
       <GuidedQuestion
-        projectContext={ctx}
         title="What kind of product will best solve your core problems?"
         subtitle="A product strategy is a direction — not an implementation plan. Think about the type of product you'll build before deciding how you'll build it."
         questions={psStrategyQuestions}
@@ -216,7 +217,7 @@ export default function Step4_ProductStrategy({ state, setState, onNext, onBack 
 
       {/* ---- REJECTED ALTERNATIVES ---- */}
       <GuidedQuestion
-        projectContext={ctx}
+
         title="What other strategies did you seriously consider — and why did you reject them?"
         subtitle="This section is required. Reviewers want evidence that you explored the option space, not just the first idea you had."
         questions={psRejectedQuestions}
@@ -233,7 +234,7 @@ export default function Step4_ProductStrategy({ state, setState, onNext, onBack 
 
       {/* ---- FIRST RELEASE ---- */}
       <GuidedQuestion
-        projectContext={ctx}
+
         title="What will your first release do — and what will it prove?"
         subtitle="Your first release is a working slice of the product that tests your core strategy in the real world."
         questions={psFirstReleaseQuestions}

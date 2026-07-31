@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GuidedQuestion from '../components/GuidedQuestion';
+import ContextBanner from '../components/ContextBanner';
 import SectionCard from '../components/SectionCard';
 import NavButtons from '../components/NavButtons';
 
@@ -428,6 +429,7 @@ export default function Step2_PrimaryUserGroups({ state, setState, onNext, onBac
 
   return (
     <div>
+      <ContextBanner context={ctx} />
       <SectionCard
         title="Primary User Groups"
         icon="👤"
@@ -449,7 +451,7 @@ export default function Step2_PrimaryUserGroups({ state, setState, onNext, onBac
             canRemove={pg.length > 1}
             coaching={coaching}
             setCoach={setCoach}
-            projectContext={ctx}
+    
           />
         ))}
 

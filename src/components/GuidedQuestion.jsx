@@ -50,22 +50,6 @@ const S = {
     borderTop: '1px solid rgba(245,168,0,0.3)',
     padding: '16px 20px 4px',
   },
-  contextStrip: {
-    background: 'var(--navy)', color: 'var(--white)',
-    borderRadius: 'var(--radius)', padding: '10px 14px',
-    fontSize: '12px', lineHeight: 1.6, marginBottom: '16px',
-  },
-  contextHeader: {
-    fontSize: '9.5px', fontWeight: 800, textTransform: 'uppercase',
-    letterSpacing: '0.07em', color: 'var(--gold)', marginBottom: '5px',
-  },
-  contextRow: { display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px' },
-  contextRowLabel: {
-    fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase',
-    letterSpacing: '0.05em', color: 'var(--gold)', flexShrink: 0,
-    marginTop: '2px', minWidth: '88px',
-  },
-  contextRowText: { opacity: 0.88, fontSize: '12px', lineHeight: 1.45 },
   qBlock: { marginBottom: '14px' },
   qRow: { display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '5px' },
   qNum: {
@@ -96,14 +80,8 @@ export default function GuidedQuestion({
   finalLabel, finalValue, onFinalChange,
   finalPlaceholder, finalRows = 4, finalSublabel,
   required,
-  projectContext,
 }) {
   const [open, setOpen] = useState(false);
-
-  const hasContext = projectContext && (
-    projectContext.service || projectContext.currentSystem ||
-    projectContext.knownProblems || projectContext.catalyst
-  );
 
   return (
     <div style={S.wrap}>
@@ -126,36 +104,6 @@ export default function GuidedQuestion({
               {subtitle && (
                 <div style={{ fontSize: '12.5px', color: 'var(--gray-600)', marginBottom: '12px', lineHeight: 1.5 }}>
                   {subtitle}
-                </div>
-              )}
-
-              {hasContext && (
-                <div style={S.contextStrip}>
-                  <div style={S.contextHeader}>Your project context</div>
-                  {projectContext.service && (
-                    <div style={S.contextRow}>
-                      <span style={S.contextRowLabel}>Service</span>
-                      <span style={S.contextRowText}>{projectContext.service}</span>
-                    </div>
-                  )}
-                  {projectContext.currentSystem && (
-                    <div style={S.contextRow}>
-                      <span style={S.contextRowLabel}>Current system</span>
-                      <span style={S.contextRowText}>{projectContext.currentSystem}</span>
-                    </div>
-                  )}
-                  {projectContext.knownProblems && (
-                    <div style={S.contextRow}>
-                      <span style={S.contextRowLabel}>Known issues</span>
-                      <span style={S.contextRowText}>{projectContext.knownProblems}</span>
-                    </div>
-                  )}
-                  {projectContext.catalyst && (
-                    <div style={S.contextRow}>
-                      <span style={S.contextRowLabel}>Why now</span>
-                      <span style={S.contextRowText}>{projectContext.catalyst}</span>
-                    </div>
-                  )}
                 </div>
               )}
 

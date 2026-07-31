@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GuidedQuestion from '../components/GuidedQuestion';
+import ContextBanner from '../components/ContextBanner';
 import SectionCard from '../components/SectionCard';
 import NavButtons from '../components/NavButtons';
 
@@ -310,9 +311,9 @@ export default function Step1_UserResearch({ state, setState, onNext, onBack }) 
 
   return (
     <div>
+      <ContextBanner context={ctx} />
       {/* ---- WHO ARE YOUR USER GROUPS ---- */}
       <GuidedQuestion
-        projectContext={ctx}
         title="Who are all the people who interact with your service?"
         subtitle="Think widely before narrowing. This brainstorm becomes the foundation for everything that follows."
         questions={ugQuestions}
@@ -337,7 +338,7 @@ export default function Step1_UserResearch({ state, setState, onNext, onBack }) 
 
       {/* ---- DATA SOURCES ---- */}
       <GuidedQuestion
-        projectContext={ctx}
+
         title="How do you know how many people are in each group?"
         subtitle="You need a source for your user group size estimates — not a guess, but a traceable number."
         questions={dsQuestions}
@@ -354,7 +355,7 @@ export default function Step1_UserResearch({ state, setState, onNext, onBack }) 
 
       {/* ---- RESEARCH PLAN ---- */}
       <GuidedQuestion
-        projectContext={ctx}
+
         title="How will you reach out to and interview real users?"
         subtitle="Before you can conduct interviews, you need a plan for who you'll talk to and how you'll recruit them."
         questions={rpQuestions}
@@ -371,7 +372,7 @@ export default function Step1_UserResearch({ state, setState, onNext, onBack }) 
 
       {/* ---- INTERVIEW GUIDES ---- */}
       <GuidedQuestion
-        projectContext={ctx}
+
         title="What questions will you ask in your interviews?"
         subtitle="Good interview questions reveal how people actually behave — not what they think they should say."
         questions={igQuestions}
@@ -424,7 +425,7 @@ export default function Step1_UserResearch({ state, setState, onNext, onBack }) 
 
       {/* ---- SYNTHESIS ---- */}
       <GuidedQuestion
-        projectContext={ctx}
+
         title="How did you make sense of what you heard?"
         subtitle="Synthesis turns individual interview notes into team-level insights. Reviewers want to know this was deliberate, not a single person's interpretation."
         questions={synQuestions}
