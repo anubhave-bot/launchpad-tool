@@ -191,6 +191,42 @@ export default function Step0_ProjectSetup({ state, setState, onNext }) {
         />
       </SectionCard>
 
+      <div style={{
+        border: '1.5px solid var(--gray-200)', borderRadius: 'var(--radius-lg)',
+        padding: '20px 24px', marginBottom: '24px',
+        background: meta.aiAssist ? '#F0F7FF' : 'var(--white)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--navy)', marginBottom: '4px' }}>
+              Use AI to fill draft Launchpad answers
+            </div>
+            <div style={{ fontSize: '12.5px', color: 'var(--gray-500)', lineHeight: 1.6 }}>
+              When ON: after filling in the coaching questions, a <strong>"Generate draft"</strong> button appears on each answer field.
+              It assembles a draft <strong>strictly from what you typed in the coaching questions</strong> — no other information is used.
+              Drafts are clearly marked and must be reviewed and edited before submitting.
+            </div>
+            {meta.aiAssist && (
+              <div style={{ marginTop: 10, fontSize: '12px', color: '#1a6bb5', fontWeight: 600 }}>
+                ✓ AI drafting is ON — look for "Generate draft" buttons on each answer field.
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => update('aiAssist')(!meta.aiAssist)}
+            style={{
+              flexShrink: 0, padding: '8px 20px', borderRadius: 'var(--radius)',
+              fontWeight: 700, fontSize: '13px', cursor: 'pointer',
+              border: meta.aiAssist ? '2px solid #1a6bb5' : '1.5px solid var(--gray-300)',
+              background: meta.aiAssist ? '#1a6bb5' : 'var(--white)',
+              color: meta.aiAssist ? 'var(--white)' : 'var(--gray-600)',
+            }}
+          >
+            {meta.aiAssist ? 'ON' : 'OFF'}
+          </button>
+        </div>
+      </div>
+
       <NavButtons
         onBack={null}
         onNext={onNext}

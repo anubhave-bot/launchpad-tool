@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'mitdp_launchpad_v1';
 
 export const defaultState = {
-  meta: { projectName: '', agency: '', ownerName: '', ownerEmail: '', serviceDescription: '', projectCatalyst: '', currentSystem: '', knownProblems: '', lastSaved: null },
+  meta: { projectName: '', agency: '', ownerName: '', ownerEmail: '', serviceDescription: '', projectCatalyst: '', currentSystem: '', knownProblems: '', lastSaved: null, aiAssist: false },
   userResearch: {
     userGroups: [
       { id: 1, name: '', description: '', currentUsers: '', potentialUsers: '', isPrimary: true },

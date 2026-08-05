@@ -12,6 +12,23 @@ const S = {
     borderTop: '1px solid var(--gold)',
     padding: '16px 20px',
   },
+  draftBar: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: '8px', gap: '10px',
+  },
+  draftBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    background: 'var(--navy)', color: 'var(--white)',
+    border: 'none', borderRadius: 'var(--radius)',
+    padding: '6px 14px', fontSize: '12px', fontWeight: 700,
+    cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap',
+  },
+  draftWarning: {
+    background: '#FFF3CD', border: '1px solid #FFC107',
+    borderRadius: 'var(--radius)', padding: '7px 11px',
+    fontSize: '11.5px', color: '#856404', lineHeight: 1.4,
+    marginBottom: '8px',
+  },
   finalLabel: {
     fontWeight: 700, fontSize: '13.5px', color: 'var(--navy)',
     marginBottom: '5px', display: 'block',
@@ -80,8 +97,10 @@ export default function GuidedQuestion({
   finalLabel, finalValue, onFinalChange,
   finalPlaceholder, finalRows = 4, finalSublabel,
   required,
+  aiAssist, onGenerateDraft,
 }) {
   const [open, setOpen] = useState(false);
+  const isDraft = finalValue && finalValue.startsWith('⚠ DRAFT ONLY');
 
   return (
     <div style={S.wrap}>
@@ -138,12 +157,24 @@ export default function GuidedQuestion({
       {/* Answer field — always visible, below coaching */}
       {(finalLabel && onFinalChange) && (
         <div style={S.finalBlock}>
-          <label style={S.finalLabel}>
-            {finalLabel}{required && <span style={{ color: 'var(--red)', marginLeft: 2 }}>*</span>}
-          </label>
+          <div style={S.draftBar}>
+            <label style={S.finalLabel}>
+              {finalLabel}{required && <span style={{ color: 'var(--red)', marginLeft: 2 }}>*</span>}
+            </label>
+            {aiAssist && onGenerateDraft && (
+              <button style={S.draftBtn} onClick={() => onGenerateDraft()}>
+                ✦ Generate draft from my answers
+              </button>
+            )}
+          </div>
+          {isDraft && (
+            <div style={S.draftWarning}>
+              ⚠ <strong>DRAFT ONLY — PLEASE REVIEW AND EDIT BEFORE SUBMITTING.</strong> This was assembled from your coaching answers. It may be incomplete or need significant revision.
+            </div>
+          )}
           {finalSublabel && <div style={S.finalSub}>{finalSublabel}</div>}
           <textarea
-            style={S.finalInput}
+            style={{ ...S.finalInput, borderColor: isDraft ? '#FFC107' : undefined }}
             rows={finalRows}
             value={finalValue}
             onChange={e => onFinalChange(e.target.value)}

@@ -3,6 +3,7 @@ import GuidedQuestion from '../components/GuidedQuestion';
 import ContextBanner from '../components/ContextBanner';
 import SectionCard from '../components/SectionCard';
 import NavButtons from '../components/NavButtons';
+import { draftGroupOpportunities, draftGroupTechBarriers, draftGroupJourney } from '../draftFromCoaching';
 
 const S = {
   listRow: { display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '8px' },
@@ -108,17 +109,11 @@ function ListInput({ items, onChange, placeholder, addLabel, minCount }) {
   );
 }
 
-function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, projectContext }) {
+function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, projectContext, aiAssist }) {
   const upd = (field) => (val) => onChange({ ...group, [field]: val });
   const checks = completenessCheck(group);
 
   const pfx = `g${groupIndex}`;
-
-  // Context shortcuts for dynamic hints
-  const svc = projectContext?.service ? projectContext.service.split('.')[0] : 'your service';
-  const sys = projectContext?.currentSystem ? projectContext.currentSystem.substring(0, 120) : null;
-  const probs = projectContext?.knownProblems ? projectContext.knownProblems.substring(0, 120) : null;
-  const catalyst = projectContext?.catalyst ? projectContext.catalyst.substring(0, 120) : null;
 
   const groupName = group.name || 'this group';
 
@@ -131,21 +126,21 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
     {
       id: `${pfx}_need_jobs`,
       text: 'What is the main job this group is trying to get done when they use your service?',
-      hint: `Think about the job-to-be-done for ${groupName}: what outcome are they trying to achieve in their work or life? Not "submit a form" but "get approval so I can start my project."${probs ? ` You noted: "${probs}" — how does that affect their job-to-be-done?` : ''}`,
-      placeholder: `e.g., ${groupName} needs to... complete their interaction with ${svc} quickly and with confidence, so they can move forward without uncertainty or delay.`,
+      hint: `Think about the outcome ${groupName} is trying to achieve in their work or life — not "submit a form" but "get approval so I can start my project." What would "done" look like from their perspective?`,
+      placeholder: `e.g., ${groupName} need to complete their interaction quickly and with confidence, so they can move forward without uncertainty or delay.`,
       rows: 2,
     },
     {
       id: `${pfx}_need_info`,
       text: 'What information does this group need that they currently can\'t easily get?',
-      hint: `Think about what ${groupName} has to look up, call to find out, or guess at in ${svc}. Information gaps are often the root cause of user frustration.${sys ? ` Given the current system: "${sys}" — what information is hardest for this group to get?` : ''}`,
+      hint: `Think about what ${groupName} has to look up, call to find out, or guess at. Information gaps are often the root cause of user frustration — status, timeline, requirements, what happens next.`,
       placeholder: 'e.g., They need to know the status of their request, the expected timeline, what is missing or required from them, and what happens next.',
       rows: 2,
     },
     {
       id: `${pfx}_need_trust`,
       text: 'What does this group need in order to trust the system and feel confident using it?',
-      hint: `Trust needs are often invisible until you ask directly. Does ${groupName} need transparency? Confirmation messages? The ability to check on progress? To speak to a human?${catalyst ? ` Given the catalyst: "${catalyst}" — does that create specific urgency for trust?` : ''}`,
+      hint: `Trust needs are often invisible until you ask directly. Does ${groupName} need transparency? Confirmation messages? The ability to check on progress? To speak to a human when something goes wrong?`,
       placeholder: 'e.g., Users need confirmation their submission was received, status updates without having to call or come in, and clear explanations when their request is denied or incomplete.',
       rows: 2,
     },
@@ -155,21 +150,21 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
     {
       id: `${pfx}_pain_friction`,
       text: 'What are the specific steps in their current process where people get stuck, confused, or frustrated?',
-      hint: `Look for steps where ${groupName} repeats themselves, waits without feedback, or has to contact your agency to ask a basic question.${sys ? ` You described the current system as: "${sys}" — where does ${groupName} hit walls in that process?` : ' Listen for phrases like "I always have to…" or "It took forever to…"'}${probs ? ` You noted: "${probs}" — is that reflected in what you heard?` : ''}`,
+      hint: `Look for steps where ${groupName} repeats themselves, waits without feedback, or has to contact your agency to ask a basic question. Listen for phrases like "I always have to…" or "It took forever to…"`,
       placeholder: 'e.g., Users told us they have to re-enter the same information on multiple forms or across multiple systems. They said they never receive confirmation that their submission arrived or is being processed.',
       rows: 3,
     },
     {
       id: `${pfx}_pain_cost`,
       text: 'What does this friction cost them — in time, money, missed opportunities, or emotional stress?',
-      hint: `Quantify where you can for ${groupName}. "Each status check takes 30 minutes on hold" is more powerful than "status checking is annoying." Real costs make the problem concrete.`,
+      hint: `Quantify where you can. "Each status check takes 30 minutes on hold" is more powerful than "status checking is annoying." Real costs make the problem concrete and reviewable.`,
       placeholder: 'e.g., Users spend [X] hours on a single interaction that should take minutes. Uncertainty about status forces them to delay decisions that depend on your service, sometimes by weeks.',
       rows: 2,
     },
     {
       id: `${pfx}_pain_workarounds`,
       text: 'What workarounds have they developed to cope with the broken process?',
-      hint: `Workarounds reveal pain points you might not know to ask about for ${groupName}. "I always save a copy before submitting in case they lose it" tells you they don't trust the process to acknowledge receipt.${sys ? ` Given the current system: "${sys}" — what do ${groupName} do to work around its limitations?` : ''}`,
+      hint: `Workarounds reveal pain you might not know to ask about. "I always save a copy before submitting in case they lose it" tells you ${groupName} doesn't trust the process to acknowledge receipt.`,
       placeholder: 'e.g., Users keep their own records to track what they submitted and when, because the system doesn\'t confirm receipt. They contact staff directly rather than using the official status channel because the official one is unreliable.',
       rows: 2,
     },
@@ -179,14 +174,14 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
     {
       id: `${pfx}_opp_direct`,
       text: 'Looking at each pain point you listed above, what\'s the most direct way to address it?',
-      hint: `Don't leap to technology solutions yet for ${groupName}. Focus on what would need to be true. "Users need to know their application arrived" → the system needs to send a confirmation. That's an opportunity, not a solution.${probs ? ` You noted: "${probs}" — what's the most direct fix?` : ''}`,
+      hint: `Don't leap to technology solutions yet. Focus on what would need to be true. "Users need to know their application arrived" → the system needs to send a confirmation. That's an opportunity, not a solution.`,
       placeholder: 'e.g., Pain: no status visibility → Opportunity: provide real-time status updates via text or email. Pain: duplicate data entry → Opportunity: auto-populate from data your agency already holds in existing systems.',
       rows: 3,
     },
     {
       id: `${pfx}_opp_policy`,
       text: 'Are any of the pain points caused by policy, process, or organizational issues — not just technology?',
-      hint: `Sometimes the solution for ${groupName} isn't an app — it's a policy change, a better form design, a reorganized workflow, or staff training.${sys ? ` The current system: "${sys}" — are any of the problems really policy or process problems wearing a technology costume?` : ' These are still valid opportunities and may be faster to implement.'}`,
+      hint: `Sometimes the solution isn't an app — it's a policy change, a better form design, a reorganized workflow, or staff training. These are still valid opportunities and may be faster to implement than software.`,
       placeholder: 'e.g., Part of the delay is caused by a policy requiring physical signatures or in-person verification. Moving to electronic signatures or remote verification would reduce processing time before any software changes.',
       rows: 2,
     },
@@ -196,21 +191,21 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
     {
       id: `${pfx}_tech_access`,
       text: 'How do the people in this group typically access digital services? What devices do they use? Do they have reliable internet?',
-      hint: `Consider for ${groupName}: are they mostly on mobile? Desktop? Do they work in areas with unreliable connectivity? Do they rely on public computers at libraries or community centers?${sys ? ` Given the current system: "${sys}" — how do they access it today?` : ''}`,
+      hint: `Are ${groupName} mostly on mobile or desktop? Do they work in areas with unreliable connectivity? Do they rely on public computers at libraries or community centres? Access patterns directly shape design requirements.`,
       placeholder: 'e.g., Users in this group primarily work from mobile phones in the field, not desktops. Many are in areas with unreliable connectivity. They often access services during breaks or after hours, not during a typical workday.',
       rows: 2,
     },
     {
       id: `${pfx}_tech_lang`,
       text: 'Are there language, literacy, or cognitive accessibility considerations for this group?',
-      hint: `About 1 in 5 MD households primarily speak a language other than English. Some users of ${svc} may have low digital literacy, vision impairments, or cognitive differences. These are design requirements, not edge cases.`,
+      hint: `About 1 in 5 MD households primarily speak a language other than English. Some users may have low digital literacy, vision impairments, or cognitive differences. These are design requirements, not edge cases.`,
       placeholder: 'e.g., A significant portion of users in this group primarily speak a language other than English. The group also includes older adults and people with varying levels of digital literacy who need plain language, larger text, and simpler form design.',
       rows: 2,
     },
     {
       id: `${pfx}_tech_trust`,
       text: 'Does this group have specific concerns about digital government services — privacy, data use, or mistrust?',
-      hint: `Some communities have historical reasons to distrust government data collection. Others may be concerned about immigration status, income reporting, or privacy when using ${svc}.${catalyst ? ` Given the catalyst: "${catalyst}" — does that create specific trust concerns?` : ' Understand these before you design.'}`,
+      hint: `Some communities have historical reasons to distrust government data collection. Others may be concerned about immigration status, income reporting, or privacy. Understand these before you design — they affect adoption more than features.`,
       placeholder: 'e.g., Some users expressed concern about providing personal or financial information online to a government system. Clear messaging about what data is collected, how it is used, and how it is protected is essential for adoption.',
       rows: 2,
     },
@@ -220,21 +215,21 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
     {
       id: `${pfx}_journey_steps`,
       text: 'List the steps this user goes through to accomplish their goal with your service, from beginning to end.',
-      hint: `Start from when ${groupName} first realizes they need to interact with ${svc}, not from when they arrive at your website. What triggers the interaction?${sys ? ` Given the current system: "${sys}" — what does their full path through it look like?` : ' What do they do first?'}`,
+      hint: `Start from when ${groupName} first realises they need to interact with your service — not from when they arrive at your website. What triggers the interaction? What do they do first, and what comes last?`,
       placeholder: 'e.g., 1. User realizes they need to interact with your service (what triggers this?). 2. They search online or ask someone where to start. 3. They arrive at your website or office. 4. They begin the process — what are the first steps?…',
       rows: 4,
     },
     {
       id: `${pfx}_journey_highs`,
       text: 'Where in that journey do things go well? What are the moments of clarity or ease?',
-      hint: `These are the parts worth preserving for ${groupName}. Not everything is broken. What are users already successfully doing with ${svc}?`,
+      hint: `Not everything is broken. These are the parts worth preserving. What are users in this group already successfully doing? What moments feel clear, fast, or satisfying?`,
       placeholder: 'e.g., Most users found [a specific step] straightforward once they understood what was required. That part works well and should be preserved.',
       rows: 2,
     },
     {
       id: `${pfx}_journey_lows`,
       text: 'Where are the biggest low points — the moments of confusion, frustration, or failure?',
-      hint: `These are your highest-priority design problems for ${groupName}. Where do users give up? Where do they make mistakes?${probs ? ` You noted: "${probs}" — is that showing up as a journey low point?` : ' Where do they have to call for help?'}`,
+      hint: `These are your highest-priority design problems. Where do users give up? Where do they make mistakes? Where do they have to call for help? Where are the longest waits?`,
       placeholder: 'e.g., The lowest point: waiting [X] weeks with no status updates or communication. Second lowest: submitting supporting documents — the current process is unclear, error-prone, or requires in-person delivery.',
       rows: 2,
     },
@@ -303,7 +298,6 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
 
       {/* OPPORTUNITIES */}
       <GuidedQuestion
-        projectContext={projectContext}
         title={`What could be done differently to serve ${groupName} better?`}
         subtitle="Opportunities flow directly from pain points. For each pain, there's at least one possible improvement."
         questions={oppQuestions}
@@ -315,11 +309,12 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
         finalSublabel="Based on your thinking above, summarize the key opportunities to improve service for this group."
         finalPlaceholder="e.g., Provide real-time status updates via email or text. Auto-populate known data from your agency's existing records to eliminate duplicate entry. Create a guided checklist so users know exactly what to prepare before starting."
         finalRows={4}
+        aiAssist={aiAssist}
+        onGenerateDraft={() => { const d = draftGroupOpportunities(coaching, pfx); if (d) upd('opportunities')(d); }}
       />
 
       {/* TECHNOLOGY BARRIERS */}
       <GuidedQuestion
-        projectContext={projectContext}
         title={`What technology, language, or accessibility barriers affect ${groupName}?`}
         subtitle="Every user group has some barriers. If you're writing 'none' — think again."
         questions={techQuestions}
@@ -331,11 +326,12 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
         finalSublabel="Summarize the technology, language, and accessibility considerations for this group. These will directly inform your product strategy and design requirements."
         finalPlaceholder="e.g., Primary device: mobile ([X]% of this group access services via phone). Connectivity: unreliable in field environments — design must work on slow connections. Language: ~[X]% prefer [language]. Literacy: some users have limited experience with government forms — plain language required throughout."
         finalRows={3}
+        aiAssist={aiAssist}
+        onGenerateDraft={() => { const d = draftGroupTechBarriers(coaching, pfx); if (d) upd('technologyBarriers')(d); }}
       />
 
       {/* JOURNEY MAP */}
       <GuidedQuestion
-        projectContext={projectContext}
         title={`What does ${groupName}'s current experience look like, step by step?`}
         subtitle="A journey map makes the current experience visible — the good, the bad, and the confusing."
         questions={journeyQuestions}
@@ -347,12 +343,14 @@ function UserGroupEditor({ group, onChange, coaching, setCoach, groupIndex, proj
         finalSublabel="Describe the key steps in this group's current journey. You can write a numbered list, describe highs/lows, or paste a link to a diagram."
         finalPlaceholder="e.g., 1. Realizes they need your service (trigger: [event]). 2. Searches online for information — difficulty finding the right starting point (LOW). 3. Fills out a form or submits a request. 4. Waits with no status updates (LOWEST POINT). 5. Calls or visits office to ask what is happening. 6. Receives decision or outcome. 7. Next steps…"
         finalRows={5}
+        aiAssist={aiAssist}
+        onGenerateDraft={() => { const d = draftGroupJourney(coaching, pfx); if (d) upd('journeyMap')(d); }}
       />
     </div>
   );
 }
 
-function GroupCard({ group, index, onChange, onRemove, canRemove, coaching, setCoach, projectContext }) {
+function GroupCard({ group, index, onChange, onRemove, canRemove, coaching, setCoach, projectContext, aiAssist }) {
   const [collapsed, setCollapsed] = useState(false);
   const title = group.name || `Group ${index + 1}`;
 
@@ -381,6 +379,7 @@ function GroupCard({ group, index, onChange, onRemove, canRemove, coaching, setC
             setCoach={setCoach}
             groupIndex={index}
             projectContext={projectContext}
+            aiAssist={aiAssist}
           />
         </div>
       )}
@@ -391,6 +390,7 @@ function GroupCard({ group, index, onChange, onRemove, canRemove, coaching, setC
 export default function Step2_PrimaryUserGroups({ state, setState, onNext, onBack }) {
   const pg = state.primaryUserGroups;
   const coaching = state.coaching || {};
+  const aiAssist = state.meta.aiAssist;
   const setCoach = (key, val) => setState(s => ({ ...s, coaching: { ...s.coaching, [key]: val } }));
 
   const { serviceDescription, currentSystem, knownProblems, projectCatalyst } = state.meta;
@@ -451,7 +451,8 @@ export default function Step2_PrimaryUserGroups({ state, setState, onNext, onBac
             canRemove={pg.length > 1}
             coaching={coaching}
             setCoach={setCoach}
-    
+            projectContext={ctx}
+            aiAssist={aiAssist}
           />
         ))}
 

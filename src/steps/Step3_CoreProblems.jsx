@@ -3,6 +3,7 @@ import GuidedQuestion from '../components/GuidedQuestion';
 import ContextBanner from '../components/ContextBanner';
 import SectionCard from '../components/SectionCard';
 import NavButtons from '../components/NavButtons';
+import { draftDefinitionOfSuccess, draftRelatedIssues } from '../draftFromCoaching';
 
 const S = {
   pills: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 },
@@ -105,15 +106,9 @@ function buildStatement({ currentState, undesiredOutcome, context, desiredOutcom
   return s;
 }
 
-function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectContext }) {
+function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectContext, aiAssist }) {
   const upd = (field) => (val) => onChange({ ...problem, [field]: val });
   const pfx = `p${index}`;
-
-  // Context shortcuts for dynamic hints
-  const svc = projectContext?.service ? projectContext.service.split('.')[0] : 'your service';
-  const sys = projectContext?.currentSystem ? projectContext.currentSystem.substring(0, 120) : null;
-  const probs = projectContext?.knownProblems ? projectContext.knownProblems.substring(0, 120) : null;
-  const catalyst = projectContext?.catalyst ? projectContext.catalyst.substring(0, 120) : null;
 
   const checks = {
     statement: !!(problem.currentState && problem.undesiredOutcome && problem.context && problem.desiredOutcome),
@@ -140,28 +135,28 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
     {
       id: `${pfx}_observable`,
       text: 'What is happening today that you can directly observe or measure — without assuming a cause?',
-      hint: `Describe what people actually do today in ${svc} — behaviors and steps you can see — not the technology you wish existed.${sys ? ` You described the current system as: "${sys}" — what observable behaviors and steps does that produce?` : ' "Users must submit paper forms by mail" is observable. "We lack a digital portal" is a system gap.'}`,
+      hint: 'Describe what people actually do today — behaviours and steps you can see, not the technology you wish existed. "Users must submit paper forms by mail" is observable. "We lack a digital portal" is a system gap, not a problem.',
       placeholder: 'e.g., People who need your service must submit requests by mail or in person. Requests then sit in a physical intake queue before staff manually enter them into the review process.',
       rows: 3,
     },
     {
       id: `${pfx}_whohurt`,
       text: 'Who is harmed by this situation, and how specifically are they harmed?',
-      hint: `Be specific about the harm in ${svc}. "Users are frustrated" is vague. "People in this group lose [specific time or money] for each [delay or error]" is specific.${probs ? ` You noted: "${probs}" — who bears the worst of that?` : ' Use numbers from your interviews wherever possible.'}`,
+      hint: 'Be specific about the harm. "Users are frustrated" is vague. "People in this group lose [specific time or money] for each [delay or error]" is specific. Use numbers from your interviews wherever possible.',
       placeholder: 'e.g., [Group A]: delays of [X] weeks cause financial loss or require them to reschedule commitments that depend on your service. [Group B]: uncertainty about status prevents them from making plans or decisions while they wait.',
       rows: 3,
     },
     {
       id: `${pfx}_scale`,
       text: 'How widespread is this problem? Roughly how many people experience it and how often?',
-      hint: `Scope gives reviewers a sense of the problem's importance in ${svc}. Even rough estimates matter. "Approximately [N] requests processed per year, all experiencing this issue" is more useful than "many people are affected."${catalyst ? ` Your catalyst: "${catalyst}" — does that suggest a scale?` : ''}`,
+      hint: 'Scope gives reviewers a sense of the problem\'s importance. Even rough estimates matter. "Approximately [N] requests processed per year, all experiencing this issue" is more useful than "many people are affected."',
       placeholder: 'e.g., Approximately [N] requests are processed each year through your agency\'s current process. Nearly every person who uses your service encounters this problem — there is no alternative path.',
       rows: 2,
     },
     {
       id: `${pfx}_notech`,
       text: 'If you solved this problem without building any technology, would that still be a success?',
-      hint: `This is the acid test for a good problem statement for ${svc}. If the answer is yes — you have a real problem. If no, you may be describing a technology solution rather than a problem.${sys ? ` Given the current system: "${sys}" — could workflow changes alone fix the core harm?` : ''}`,
+      hint: 'This is the acid test for a good problem statement. If the answer is yes — you have a real problem. If no, you may be describing a technology solution rather than a problem. Could workflow or policy changes alone fix the core harm?',
       placeholder: 'e.g., Yes — if your agency reorganized its intake workflow and added staff, the delay problem could be reduced. Technology would make the solution faster and more scalable, but it is not the only path to solving the problem.',
       rows: 2,
     },
@@ -171,21 +166,21 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
     {
       id: `${pfx}_success_min`,
       text: 'What is the minimum that must be true to call this problem solved — even partially?',
-      hint: `Think about the core harm you described for ${svc}. What's the smallest change that would meaningfully reduce that harm?${probs ? ` You noted: "${probs}" — what's the floor for calling that addressed?` : ' This becomes your MVP benchmark.'}`,
+      hint: 'Think about the core harm you described. What\'s the smallest change that would meaningfully reduce that harm? This becomes your MVP benchmark — the floor below which success is not credible.',
       placeholder: 'e.g., At minimum, users receive an acknowledgment within 24 hours of submission and a decision within [X] business days for routine requests.',
       rows: 2,
     },
     {
       id: `${pfx}_success_verify`,
       text: 'How would someone independently verify that this has been achieved? What evidence would you show them?',
-      hint: `"Users are happier" is not verifiable for ${svc}. "90% of requests processed within 5 days, measured from your agency's case management system" is verifiable. Could a reviewer who has never met you read the evidence and confirm the problem is solved?`,
+      hint: '"Users are happier" is not verifiable. "90% of requests processed within 5 days, measured from our case management system" is verifiable. Could a reviewer who has never met you read the evidence and confirm the problem is solved?',
       placeholder: 'e.g., Pull processing time data from your agency\'s case or application system. Survey users [X] days after launch. A reviewer who has never met us should be able to read the numbers and say: yes, this problem is solved.',
       rows: 2,
     },
     {
       id: `${pfx}_success_partial`,
       text: 'What would partial success look like at the end of your first release? What would full success look like in 2 years?',
-      hint: `Break success into horizons for ${svc}. Your first release won't solve everything.${catalyst ? ` Given the catalyst: "${catalyst}" — does that set any urgency for when partial success needs to land?` : ' Being honest about what\'s a 6-month win vs. a 2-year win helps reviewers understand your ambition and realism.'}`,
+      hint: 'Break success into horizons. Your first release won\'t solve everything. Being honest about what\'s a 6-month win vs. a 2-year win helps reviewers understand your ambition and realism.',
       placeholder: 'e.g., 6 months: digital submission available, [X]% of new requests using it. 2 years: [X]% adoption, median processing time under [Y] days, user satisfaction measurably improved.',
       rows: 2,
     },
@@ -195,21 +190,21 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
     {
       id: `${pfx}_impact_time`,
       text: 'How will this save people time or reduce burden in their daily lives?',
-      hint: `Time is the most universal benefit. How many hours per interaction with ${svc}? How many calls to check status? How many trips to a government office? Quantify where you can.`,
+      hint: 'Time is the most universal benefit. How many hours per interaction? How many calls to check status? How many trips to a government office? Quantify where you can — specific numbers are far more compelling than general claims.',
       placeholder: 'e.g., Each user will save [X] hours per interaction by submitting online instead of preparing and mailing paper forms, or making an in-person visit.',
       rows: 2,
     },
     {
       id: `${pfx}_impact_economic`,
       text: 'What economic benefit does this create for individuals, small businesses, or communities?',
-      hint: `Faster decisions from ${svc} mean people can act sooner. What money, time, or opportunity is currently being lost because of the delay or friction?${probs ? ` You noted: "${probs}" — what's the economic cost of that today?` : ''}`,
-      placeholder: 'e.g., People who depend on timely decisions from your agency can plan and commit to other activities more reliably. Delays in your process create cascading costs — financial, logistical, or emotional — that solving the problem would eliminate.',
+      hint: 'Faster decisions mean people can act sooner. What money, time, or opportunity is currently being lost because of the delay or friction? Delays create cascading costs — financial, logistical, or emotional — that solving the problem would eliminate.',
+      placeholder: 'e.g., People who depend on timely decisions from your agency can plan and commit to other activities more reliably. Delays in your process create cascading costs that solving the problem would eliminate.',
       rows: 2,
     },
     {
       id: `${pfx}_impact_equity`,
       text: 'Who benefits most from solving this problem? Does this address any equity gaps?',
-      hint: `Sometimes the biggest beneficiaries of improving ${svc} are populations that currently have the hardest time navigating government services — non-English speakers, lower-income households, rural residents, people with disabilities.${catalyst ? ` Given the catalyst: "${catalyst}" — is equity part of the urgency?` : ' Call them out.'}`,
+      hint: 'Sometimes the biggest beneficiaries are populations that currently have the hardest time navigating government services — non-English speakers, lower-income households, rural residents, people with disabilities. Call them out explicitly.',
       placeholder: 'e.g., Non-English-speaking users currently rely on intermediaries to navigate a complex paper process. A digital service with plain language and multilingual support could remove that dependency and reduce inequality in access.',
       rows: 2,
     },
@@ -219,21 +214,21 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
     {
       id: `${pfx}_metric_today`,
       text: 'What data exists today that could be used as a baseline? Where is it stored and who owns it?',
-      hint: `Think about: your agency's existing databases, annual reports, complaint logs, call center records for ${svc}.${sys ? ` You described the current system as: "${sys}" — does it have timestamps or counts that could serve as a baseline?` : ' Even a rough number from a spreadsheet is better than nothing.'}`,
+      hint: 'Think about: your agency\'s existing databases, annual reports, complaint logs, call centre records. Even a rough number from a spreadsheet is better than nothing — you need a baseline to measure progress against.',
       placeholder: 'e.g., Your agency\'s case management or intake system likely has timestamps for when requests are received and resolved — you can calculate average processing time from those.',
       rows: 2,
     },
     {
       id: `${pfx}_metric_access`,
       text: 'Can your team actually access that data? Is it in a system you can query, or would you need help from IT or another agency?',
-      hint: `It's common to identify a great data source for ${svc} that turns out to be locked in a legacy system with no reporting tools.${sys ? ` Given the current system: "${sys}" — how accessible is its data today?` : ' Flag this now — you\'ll need a plan to access it.'}`,
+      hint: 'It\'s common to identify a great data source that turns out to be locked in a legacy system with no reporting tools. Flag this now — you\'ll need a plan to access it before you can measure success.',
       placeholder: 'e.g., Our IT team can run a query against the case management system. We\'ll need to request a regular data export — we don\'t have direct dashboard access yet, but that\'s part of what we\'ll set up.',
       rows: 2,
     },
     {
       id: `${pfx}_metric_target`,
       text: 'What would "significantly better" look like in concrete numbers? What is your target?',
-      hint: `Don't guess for ${svc} — ground your target in what you heard from users or in comparable benchmarks.${probs ? ` You noted: "${probs}" — what reduction in that would count as success?` : ' "Under 5 days" might come from what users told you they need.'}`,
+      hint: 'Ground your target in what you heard from users or in comparable benchmarks — don\'t guess. "Under 5 days" should come from what users told you they need, or from a program that already achieves it.',
       placeholder: 'e.g., Target: ≤[X] business days for 90% of routine requests. Benchmark: users told us anything over [Y] days creates planning problems for them. Your program currently averages [Z] days — that\'s your baseline.',
       rows: 2,
     },
@@ -304,7 +299,6 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
 
       {/* DEFINITION OF SUCCESS */}
       <GuidedQuestion
-        projectContext={projectContext}
         title="What would it mean to have actually solved this problem?"
         subtitle="A definition of success must be specific enough that a stranger could verify it without talking to you."
         questions={successQuestions}
@@ -317,6 +311,8 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
         finalPlaceholder="e.g., Users of your service can submit requests entirely online, and 90% of routine requests receive a decision within [X] business days of submission. Submission time drops from [current state] to under [target time]. Measured monthly from your agency's case management system."
         finalRows={4}
         required
+        aiAssist={aiAssist}
+        onGenerateDraft={() => { const d = draftDefinitionOfSuccess(coaching, `p${index}`); if (d) upd('definitionOfSuccess')(d); }}
       />
 
       {/* IMPACTS */}
@@ -398,7 +394,7 @@ function ProblemEditor({ problem, onChange, coaching, setCoach, index, projectCo
   );
 }
 
-function ProblemCard({ problem, index, onChange, onRemove, canRemove, coaching, setCoach, projectContext }) {
+function ProblemCard({ problem, index, onChange, onRemove, canRemove, coaching, setCoach, projectContext, aiAssist }) {
   const [collapsed, setCollapsed] = useState(false);
   const title = problem.name || `Problem ${index + 1}`;
 
@@ -427,6 +423,7 @@ function ProblemCard({ problem, index, onChange, onRemove, canRemove, coaching, 
             coaching={coaching}
             setCoach={setCoach}
             index={index}
+            aiAssist={aiAssist}
           />
         </div>
       )}
@@ -437,6 +434,7 @@ function ProblemCard({ problem, index, onChange, onRemove, canRemove, coaching, 
 export default function Step3_CoreProblems({ state, setState, onNext, onBack }) {
   const problems = state.coreProblems;
   const coaching = state.coaching || {};
+  const aiAssist = state.meta.aiAssist;
   const setCoach = (key, val) => setState(s => ({ ...s, coaching: { ...s.coaching, [key]: val } }));
 
   const { serviceDescription, currentSystem, knownProblems, projectCatalyst } = state.meta;
@@ -489,7 +487,8 @@ export default function Step3_CoreProblems({ state, setState, onNext, onBack }) 
             canRemove={problems.length > 1}
             coaching={coaching}
             setCoach={setCoach}
-    
+            projectContext={ctx}
+            aiAssist={aiAssist}
           />
         ))}
 
